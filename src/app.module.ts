@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { EmployeeModule } from './employee/employee.module.js';
-import { pgConfig } from './db.config.js';
+import { dataSourceOptions } from './db.config.js';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
@@ -10,7 +10,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       isGlobal: true,
       envFilePath: '.env',
     }),
-    TypeOrmModule.forRoot(pgConfig),
+    TypeOrmModule.forRoot(dataSourceOptions),
     EmployeeModule
   ],
   controllers: [],

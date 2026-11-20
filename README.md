@@ -34,9 +34,17 @@ ADMIN_DEPARTMENT=IT
 | `PORT` | HTTP port. Defaults to `3000`. A value already set in the environment takes precedence. |
 | `DB_TYPE` | Database driver. Use `postgres`. |
 | `DB_URL` | PostgreSQL connection string. |
-| `DB_SYNCHRONIZE` | When `true`, TypeORM updates the schema from the entities. Keep this `false` outside local development. |
+| `DB_SYNCHRONIZE` | When `true`, TypeORM updates the schema from the entities on startup. Leave this `false` and use migrations. |
 | `JWT_SECRET` | Secret used to sign and verify access tokens. Required. |
 | `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_EMPLOYEE_ID`, `ADMIN_DEPARTMENT` | Initial admin created by `npm run seed:admin`. The password must be at least 8 characters. |
+
+Apply the schema. `DB_SYNCHRONIZE` must be `false`. The initial migration creates the `employee` table, enum types, unique email and employee id, and a default on `joiningDate`. If those objects already exist, it adds only what is missing.
+
+```bash
+npm run migration:run
+```
+
+`npm run migration:show` lists pending migrations. `npm run migration:revert` rolls back the last one and drops the `employee` table.
 
 Create the first admin. The command builds the app, then inserts the admin from `.env`. If that email already exists, it leaves the row unchanged.
 

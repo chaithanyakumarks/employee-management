@@ -208,12 +208,12 @@ describe('EmployeeService', () => {
             })
 
             expect(stored.department).toBe('Research')
-            expect(stored.name).toBe('Ada Lovelace')
+            expect(stored.name).toBe('Test')
             expect(result).toEqual({
                 employee: {
                     employeeId: 'EMP001',
-                    name: 'Ada Lovelace',
-                    email: 'ada@example.com',
+                    name: 'Test',
+                    email: 'test@example.com',
                     department: 'Research',
                     employmentStatus: EmployeeStatus.PERMANENT,
                     joiningDate: employee.joiningDate,
@@ -271,7 +271,7 @@ describe('EmployeeService', () => {
             const result = await service.loginEmployee(credentials)
 
             expect(jwtService.sign).toHaveBeenCalledWith({
-                email: 'ada@example.com',
+                email: 'test@example.com',
                 id: 4,
                 role: UserRole.EMPLOYEE,
             })
@@ -282,7 +282,7 @@ describe('EmployeeService', () => {
                 expiresIn: '15m',
                 user: {
                     employeeId: 'EMP001',
-                    email: 'ada@example.com',
+                    email: 'test@example.com',
                 },
             })
         })
