@@ -280,7 +280,6 @@ export class EmployeeService {
     ) {
         this.logger.log(`Logging in employee with email: ${loginEmployeeDto.email}`)
         try {
-
             const { email, password } = loginEmployeeDto
             const employee = await this.employeeRepository.findOne({ where: {
                 email: email
@@ -296,7 +295,8 @@ export class EmployeeService {
 
             const payload = {
                 email: employee.email,
-                id: employee.id
+                id: employee.id,
+                role: employee.role
             }
             const token = await this.jwtService.sign(payload)
             this.logger.log(`Token has generated for email: ${loginEmployeeDto.email}`)
@@ -311,7 +311,6 @@ export class EmployeeService {
                     email: employee.email,
                 }
             }
-
         } catch (error) {
             this.logger.log(
                 `Error occurred while logging in the employee: ${error}`

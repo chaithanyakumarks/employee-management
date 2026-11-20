@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert } from 'typeorm';
 import { EmployeeStatus } from './employee-status.enum.js';
 import { MinLength } from 'class-validator';
+import { UserRole } from '../../common/enums/user-role.enum.js'
 
 @Entity()
 export class Employee {
@@ -23,6 +24,13 @@ export class Employee {
         default: EmployeeStatus.INTERNSHIP
     })
     employmentStatus: EmployeeStatus
+
+    @Column({
+        type: 'enum',
+        enum: UserRole,
+        default: UserRole.EMPLOYEE,
+    })
+    role: UserRole
 
     @Column({
         type: 'varchar',

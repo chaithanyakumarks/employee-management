@@ -8,6 +8,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy.js';
 import { ConfigService } from '@nestjs/config';
+import { RolesGuard } from '../common/guards/roles.guard.js';
 
 @Module({
     imports:[
@@ -31,7 +32,8 @@ import { ConfigService } from '@nestjs/config';
     providers: [
         EmployeeService, 
         EmployeeLoggerService,
-        JwtStrategy
+        JwtStrategy,
+        RolesGuard
     ]
 })
 export class EmployeeModule {}
