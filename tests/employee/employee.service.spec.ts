@@ -17,8 +17,8 @@ vi.mock('bcrypt', () => ({
 const employee = {
     id: 4,
     employeeId: 'EMP001',
-    name: 'Ada Lovelace',
-    email: 'ada@example.com',
+    name: 'Test',
+    email: 'test@example.com',
     department: 'Engineering',
     employmentStatus: EmployeeStatus.PERMANENT,
     role: UserRole.EMPLOYEE,
