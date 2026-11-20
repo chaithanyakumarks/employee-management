@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
 import { EmployeeStatus } from './employee-status.enum.js';
 import { MinLength } from 'class-validator';
 import { UserRole } from '../../common/enums/user-role.enum.js'
@@ -9,13 +9,21 @@ export class Employee {
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column()
+    @Column({
+        type: 'varchar', 
+        length: 100 
+    })
     name: string
 
-    @Column()
+    @Column({ 
+        type: 'varchar', 
+        unique: true 
+    })
     email: string
 
-    @Column()
+    @Column({ 
+        type: 'varchar'
+    })
     department: string
 
     @Column({
@@ -35,13 +43,16 @@ export class Employee {
     @Column({
         type: 'varchar',
         length: 20,
+        unique: true
     })
     employeeId: string 
 
-    @Column()
+    @CreateDateColumn({ type: 'timestamp' })
     joiningDate: Date
 
-    @Column()
+    @Column({
+        type: 'varchar'
+    })
     @MinLength(8)
     password: string
 }

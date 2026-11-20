@@ -1,7 +1,8 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module.js';
-import { ValidationPipe } from '@nestjs/common/pipes/validation.pipe.js';
-import { UtilsInterceptor } from './utils/utils.interceptor.js';
+import 'reflect-metadata'
+import { NestFactory } from '@nestjs/core'
+import { AppModule } from './app.module.js'
+import { ValidationPipe } from '@nestjs/common/pipes/validation.pipe.js'
+import { UtilsInterceptor } from './utils/utils.interceptor.js'
 
 process.loadEnvFile();
 

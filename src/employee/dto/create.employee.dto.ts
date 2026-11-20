@@ -1,4 +1,4 @@
-import { IsString, IsEmail, IsDate, IsEnum, IsNotEmpty, IsDateString, isNotEmpty } from 'class-validator';
+import { IsString, IsEmail, IsEnum, IsNotEmpty, IsDateString } from 'class-validator';
 import { EmployeeStatus } from '../entities/employee-status.enum.js';
 
 export class CreateEmployeeDto {

@@ -29,7 +29,6 @@ export class EmployeeService {
             const {
                 search,
                 department,
-                employmentStatus,
                 sortBy,
                 sortOrder,
                 page,
@@ -146,7 +145,6 @@ export class EmployeeService {
             updateEmployeeDto.department === undefined && 
             updateEmployeeDto.employmentStatus === undefined) {
                 throw new NotFoundException(`Nothing to update on the Employee with ID ${id}`);
-                return
         }
         try {
             const employee = await this.employeeRepository.findOneBy({

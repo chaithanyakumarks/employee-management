@@ -2,7 +2,6 @@ import { Controller, Get, Put, Post, Delete, Body, Param, UseGuards, Query, Requ
 import { EmployeeService } from './employee.service.js'
 import { CreateEmployeeDto } from './dto/create.employee.dto.js'
 import { UpdateEmployeeDto } from './dto/update.employee.dto.js'
-import { RoleGuard } from '../role-guard/role-guard.guard.js'
 import { EmployeeQueryDto } from './dto/employee.query.dto.js'
 import { LoginDto } from './dto/login.dto.js'
 import { JwtAuthGuard } from '../auth-guard/jwt-auth.guard.js'
@@ -45,6 +44,7 @@ export class EmployeeController {
     // Admin Only
 
     @Post('create')
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(UserRole.ADMIN)
     createEmployee(
         @Body() createEmployeeDto: CreateEmployeeDto
@@ -52,8 +52,8 @@ export class EmployeeController {
         return this.employeeService.createEmployee(createEmployeeDto)
     }
 
-    @UseGuards(JwtAuthGuard, RolesGuard)
     @Get(':id')
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(UserRole.ADMIN)
     fetchEmployeeById(
         @Param('id') id: string
@@ -61,8 +61,8 @@ export class EmployeeController {
         return this.employeeService.fetchEmployeeById(id)
     }
 
-    @UseGuards(JwtAuthGuard, RolesGuard)
     @Put(':id')
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(UserRole.ADMIN)
     updateEmployeeById(
         @Param('id') id: string,
@@ -80,6 +80,3 @@ export class EmployeeController {
         return this.employeeService.removeEmployee(id)
     }
 }
-
-// Pending works
-// 3. Unit tests for EmployeeService and EmployeeController.

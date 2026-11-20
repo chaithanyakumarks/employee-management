@@ -2,7 +2,7 @@ import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nes
 import { map, Observable } from 'rxjs';
 
 @Injectable()
-export class UtilsInterceptor<T> implements NestInterceptor {
+export class UtilsInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
 
     const response = context.switchToHttp().getResponse()
