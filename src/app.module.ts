@@ -1,8 +1,8 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { EmployeeModule } from './employee/employee.module.js';
-import { dataSourceOptions } from './db.config.js';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { Module } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
+import { EmployeeModule } from './employee/employee.module.js'
+import { dataSourceOptions } from './db.config.js'
+import { TypeOrmModule } from '@nestjs/typeorm'
 
 @Module({
   imports: [

@@ -1,15 +1,15 @@
-import 'reflect-metadata';
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module.js';
-import { ValidationPipe } from '@nestjs/common/pipes/validation.pipe.js';
-import { UtilsInterceptor } from './utils/utils.interceptor.js';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { Employee } from './employee/entities/employee.entity.js';
+import 'reflect-metadata'
+import { NestFactory } from '@nestjs/core'
+import { AppModule } from './app.module.js'
+import { ValidationPipe } from '@nestjs/common/pipes/validation.pipe.js'
+import { UtilsInterceptor } from './utils/utils.interceptor.js'
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
+import { Employee } from './employee/entities/employee.entity.js'
 
-process.loadEnvFile();
+process.loadEnvFile()
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule)
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -53,8 +53,9 @@ async function bootstrap() {
     },
   });
 
-  app.useGlobalInterceptors(new UtilsInterceptor());
+  app.useGlobalInterceptors(new UtilsInterceptor())
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 3000)
 }
-await bootstrap();
+
+await bootstrap()
