@@ -1,126 +1,158 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Employee Directory
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+NestJS API for an employee directory. Employees are stored in PostgreSQL. Login returns a JWT, and routes are restricted by role (`ADMIN` or `EMPLOYEE`).
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Requirements
 
-## Description
+- Node.js 22 or later
+- PostgreSQL
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
+## Setup
 
 ```bash
-$ npm install
+npm install
 ```
 
-The application reads configuration from the project's `.env` file. Set `JWT_SECRET` to a strong, private value; it is required to sign and verify authentication tokens. `PORT` defaults to `3000` when it is not set, and a `PORT` value provided by the environment takes precedence.
+Create a `.env` file in the project root:
 
-## Compile and run the project
+```env
+PORT=3000
+DB_TYPE=postgres
+DB_URL=postgres://user:password@localhost:5432/employee_directory
+DB_SYNCHRONIZE=false
+JWT_SECRET=replace-with-a-long-random-secret
+
+ADMIN_NAME=System Administrator
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=change-this-password
+ADMIN_EMPLOYEE_ID=ADMIN_001
+ADMIN_DEPARTMENT=IT
+```
+
+| Variable | Purpose |
+| --- | --- |
+| `PORT` | HTTP port. Defaults to `3000`. A value already set in the environment takes precedence. |
+| `DB_TYPE` | Database driver. Use `postgres`. |
+| `DB_URL` | PostgreSQL connection string. |
+| `DB_SYNCHRONIZE` | When `true`, TypeORM updates the schema from the entities. Keep this `false` outside local development. |
+| `JWT_SECRET` | Secret used to sign and verify access tokens. Required. |
+| `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_EMPLOYEE_ID`, `ADMIN_DEPARTMENT` | Initial admin created by `npm run seed:admin`. The password must be at least 8 characters. |
+
+Create the first admin. The command builds the app, then inserts the admin from `.env`. If that email already exists, it leaves the row unchanged.
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm run seed:admin
 ```
 
-## Run tests
+## Run
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm run start:dev   # watch mode
+npm run start       # single run
+npm run start:prod  # node dist/main, after npm run build
 ```
 
-## Deployment
+The API listens on `http://localhost:3000` unless `PORT` is set. Swagger UI is at [http://localhost:3000/api-docs](http://localhost:3000/api-docs). Use the same port as `PORT` when it is set.
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## Authentication
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+`POST /employee/login` is public. Every other route requires:
+
+```http
+Authorization: Bearer <accessToken>
+```
+
+Tokens expire after 15 minutes. The token carries the employee email, numeric id, and role.
+
+`GET /employee` and `GET /employee/profile` accept either role. Creating, reading by id, updating, and deleting an employee require `ADMIN`.
+
+## API
+
+Successful responses are wrapped as:
+
+```json
+{
+  "statusCode": 200,
+  "message": "Success",
+  "data": {}
+}
+```
+
+Request bodies are validated. Unknown properties are rejected.
+
+### Login
+
+`POST /employee/login`
+
+```json
+{
+  "email": "admin@example.com",
+  "password": "change-this-password"
+}
+```
+
+`data` contains `accessToken`, `tokenType` (`Bearer`), `expiresIn` (`15m`), and `user` (`employeeId`, `email`). Passwords are never returned.
+
+### List employees
+
+`GET /employee`
+
+Any signed-in user. Query parameters:
+
+| Parameter | Default | Notes |
+| --- | --- | --- |
+| `search` | | Case-insensitive match on name or email. |
+| `department` | | Exact department. |
+| `page` | `1` | |
+| `limit` | `10` | Maximum `100`. |
+| `sortBy` | `name` | `name` or `joiningDate`. |
+| `sortOrder` | `ASC` | `ASC` or `DESC`. |
+
+`data` contains `employees` and `pagination` (`total`, `page`, `limit`, `totalPages`, `hasNextPage`, `hasPreviousPage`).
+
+### Profile
+
+`GET /employee/profile`
+
+Returns the employee record for the email in the token.
+
+### Admin routes
+
+| Method | Path | Action |
+| --- | --- | --- |
+| `POST` | `/employee/create` | Create an employee. |
+| `GET` | `/employee/:id` | Fetch one employee by `employeeId`. |
+| `PUT` | `/employee/:id` | Update name, email, department, or employment status. |
+| `DELETE` | `/employee/:id` | Delete an employee. |
+
+Create body:
+
+```json
+{
+  "name": "Ada Lovelace",
+  "email": "ada@example.com",
+  "department": "Engineering",
+  "employmentStatus": "Permanent",
+  "employeeId": "EMP001",
+  "joiningDate": "2024-06-01",
+  "password": "password1"
+}
+```
+
+`employmentStatus` is one of `Internship`, `Probation`, `On Contract`, `Permanent`, `Resigned`, or `Terminated`. Employees created through this route receive the `EMPLOYEE` role. Email and `employeeId` must be unique. The password is stored as a bcrypt hash.
+
+## Employee record
+
+Each employee has a name, unique email, department, employment status, role, unique employee id, joining date, and password. List, profile, and detail responses omit the password and the numeric primary key.
+
+## Tests and checks
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npm test            # unit tests
+npm run test:watch
+npm run test:cov
+npm run lint
+npm run format
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Observability
-
-In production applications, observability is essential for understanding how your system behaves, detecting issues early, and maintaining reliable performance.
-
-[NestJS Observe](https://observe.nestjs.com) automatically instruments your NestJS application, giving you deep visibility into your system with minimal setup:
-
-- **Distributed tracing:** Follow requests across services and understand how they flow through your system.
-- **Waterfall analysis:** Visualize request execution and identify slow operations, bottlenecks, and unexpected delays.
-- **Performance analysis:** Analyze application performance in real time and quickly pinpoint areas that need optimization.
-- **Metrics:** Track key application and infrastructure metrics to understand system health and performance trends.
-- **Logging:** Centralize and correlate logs with traces and other telemetry to make debugging easier.
-- **Error tracking:** Detect errors quickly and investigate their root causes with the surrounding context.
-- **SLA monitoring:** Track service-level objectives and identify when your application is approaching or exceeding defined thresholds.
-- **Alarms and alerts:** Set up alerts for critical errors, performance degradation, SLA violations, and other anomalies so your team can react quickly.
-
-To add it to this project:
-
-```bash
-$ npm install @nestjs/observe
-```
-
-Then follow the [setup guide](https://docs.nestjs.com/observability/overview) - it takes a single import and an app key.
-
-The free plan needs no payment details and covers 300,000 events a month. You can also browse the [live demo](https://www.observe-demo.nestjs.com/dashboard) first - the whole dashboard over a busy service's data, with nothing to install.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Auto-instrument your application with [NestJS Observe](https://observe.nestjs.com). Distributed tracing, metrics, and logging made easy. Error tracking and performance monitoring for your NestJS applications.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Unit tests live in `tests/` and cover the employee service, controller routes, and role guard.
